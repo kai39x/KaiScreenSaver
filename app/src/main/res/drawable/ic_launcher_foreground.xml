@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- دائرة زرقاء كبيرة (تمثل الساعة/الكرة) داخل المنطقة الآمنة لأيقونة Adaptive Icon -->
+    <path
+        android:fillColor="#2E63D6"
+        android:pathData="M54,25 A29,29 0 1,1 53.99,25 Z" />
+    <!-- لمسة ذهبية صغيرة (تلميح لهلال رمضان) -->
+    <path
+        android:fillColor="#E8B84B"
+        android:pathData="M79,24 A11,11 0 1,1 78.99,24 Z" />
+</vector>

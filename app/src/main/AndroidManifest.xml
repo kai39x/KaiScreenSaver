@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- الصلاحية الوحيدة المطلوبة، كما طلب -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- يعمل التطبيق بدون شاشة لمس (أجهزة Android TV) وبدون ميزات leanback إلزامية -->
+    <uses-feature
+        android:name="android.software.leanback"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ChelseaDream">
+
+        <!-- شاشة بسيطة توضح للمستخدم كيف يفعّل الشاشة كـ Screen Saver -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.ChelseaDream">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- خدمة الـ DreamService الرسمية؛ تظهر تلقائيًا ضمن:
+             الإعدادات ← النظام ← شاشة التوقف / Ambient Mode -->
+        <service
+            android:name=".ChelseaDreamService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.dream"
+                android:resource="@xml/dream_info" />
+        </service>
+
+    </application>
+</manifest>

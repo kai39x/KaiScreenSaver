@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="navy_deep">#070B1A</color>
+    <color name="navy_mid">#0E1730</color>
+    <color name="chelsea_blue">#2E63D6</color>
+    <color name="ramadan_gold">#E8B84B</color>
+    <color name="text_primary">#F3F6FC</color>
+    <color name="text_secondary">#8DA0CC</color>
+</resources>

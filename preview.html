@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>معاينة KaiScreenSaver</title>
+<link rel="stylesheet" href="app/src/main/assets/style.css">
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- الخلفية: طبقتان تتبادلان بتلاشي ناعم؛ بدون صور في assets/backgrounds تظهر خلفية navy متدرجة -->
+  <div class="bg-layer" id="bg-a" aria-hidden="true"></div>
+  <div class="bg-layer" id="bg-b" aria-hidden="true"></div>
+  <div class="shade" aria-hidden="true"></div>
+
+  <div class="drift">
+
+    <!-- يسار فوق: الطقس -->
+    <!-- اسم المدينة يأتي من ApiConfig.kt (CITY_NAME) عبر setConfig() في script.js -->
+    <section class="weather" id="weather-box" aria-label="الطقس">
+      <div class="label" id="weather-label">الطقس</div>
+      <div class="weather-now">
+        <span class="weather-temp" id="weather-temp">--°</span>
+        <svg class="wicon wicon-now" viewBox="0 0 48 48" aria-hidden="true"><use id="weather-icon" href="#i-cloud"></use></svg>
+        <span class="weather-desc" id="weather-desc">جاري التحميل…</span>
+      </div>
+      <div class="forecast" id="weather-forecast"></div>
+    </section>
+
+    <!-- يمين فوق: اسم اليوم والتاريخان -->
+    <header class="when">
+      <div class="weekday" id="weekday">—</div>
+      <div class="dates" id="date-label">—</div>
+    </header>
+
+    <!-- الساعة الضخمة: الأرقام (ساعات : دقائق) ثم ص/م صغيرة على يسارها -->
+    <div class="clock" aria-label="الوقت">
+      <span class="time"><span id="clock-h">--</span><span class="colon">:</span><span id="clock-m">--</span></span>
+      <span class="period" id="clock-period">--</span>
+    </div>
+
+    <!-- صف الأعمدة الثلاثة: صلاة | رمضان | مباراة — بدون كروت، فواصل رفيعة فقط -->
+    <footer class="info">
+
+      <section class="col" aria-label="الصلاة القادمة">
+        <div class="label">الصلاة القادمة</div>
+        <div class="value"><span id="prayer-name">—</span><span class="small" id="prayer-time"></span></div>
+        <div class="sub" id="prayer-sub">جاري التحميل…</div>
+      </section>
+
+      <section class="col" aria-label="عداد رمضان">
+        <div class="label">رمضان</div>
+        <div class="value"><span id="ramadan-value">—</span><span class="small" id="ramadan-unit"></span></div>
+        <div class="sub" id="ramadan-sub">جاري التحميل…</div>
+      </section>
+
+      <!-- اسم الفريق يأتي من ApiConfig.kt (TEAM_NAME) عبر setConfig() في script.js -->
+      <section class="col col-match" id="match-box" aria-label="المباريات القادمة">
+        <div class="label"><span id="match-label">المباراة القادمة</span><span class="dots" id="match-dots"></span></div>
+        <div class="swap" id="match-swap">
+          <div class="value" id="match-title">—</div>
+          <div class="sub" id="match-sub">جاري تحميل المباريات…</div>
+        </div>
+      </section>
+
+    </footer>
+  </div>
+</div>
+
+<!-- أيقونات الطقس: SVG مضمّنة (تعمل بلا إنترنت وبدون صور خارجية) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-clear-d" viewBox="0 0 48 48" fill="none" stroke="#F6C85F" stroke-width="3" stroke-linecap="round">
+      <circle cx="24" cy="24" r="8.5"></circle>
+      <path d="M24 5v5M24 38v5M5 24h5M38 24h5M10.6 10.6l3.5 3.5M33.9 33.9l3.5 3.5M10.6 37.4l3.5-3.5M33.9 14.1l3.5-3.5"></path>
+    </symbol>
+    <symbol id="i-clear-n" viewBox="0 0 48 48" fill="none" stroke="#DCE4F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M36 28.5A14 14 0 0 1 19.5 12a14 14 0 1 0 16.5 16.5z"></path>
+    </symbol>
+    <symbol id="i-few-d" viewBox="0 0 48 48" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <g stroke="#F6C85F"><circle cx="31" cy="17" r="6.5"></circle><path d="M31 5v3M31 26v3M19 17h3M40 17h3M22.5 8.5l2 2M37.5 23.5l2 2M39.5 8.5l-2 2"></path></g>
+      <path stroke="#fff" d="M15 40h17a6.5 6.5 0 0 0 .6-13A9 9 0 0 0 15.4 28 6 6 0 0 0 15 40z"></path>
+    </symbol>
+    <symbol id="i-few-n" viewBox="0 0 48 48" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="#DCE4F7" d="M41 20.5A9.5 9.5 0 0 1 30.5 8 9.5 9.5 0 1 0 41 20.5z"></path>
+      <path stroke="#fff" d="M15 41h17a6.5 6.5 0 0 0 .6-13A9 9 0 0 0 15.4 29 6 6 0 0 0 15 41z"></path>
+    </symbol>
+    <symbol id="i-cloud" viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13 37h21a8 8 0 0 0 .8-16A11 11 0 0 0 13.4 23 7 7 0 0 0 13 37z"></path>
+    </symbol>
+    <symbol id="i-rain" viewBox="0 0 48 48" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="#fff" d="M13 29h21a8 8 0 0 0 .8-16A11 11 0 0 0 13.4 15 7 7 0 0 0 13 29z"></path>
+      <path stroke="#7FB2FF" d="M17 35l-2 6M26 35l-2 6M35 35l-2 6"></path>
+    </symbol>
+    <symbol id="i-thunder" viewBox="0 0 48 48" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="#fff" d="M13 29h21a8 8 0 0 0 .8-16A11 11 0 0 0 13.4 15 7 7 0 0 0 13 29z"></path>
+      <path stroke="#F6C85F" d="M25 31l-5 8h6l-3 7"></path>
+    </symbol>
+    <symbol id="i-snow" viewBox="0 0 48 48" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="#fff" d="M13 29h21a8 8 0 0 0 .8-16A11 11 0 0 0 13.4 15 7 7 0 0 0 13 29z"></path>
+      <path stroke="#BFD9FF" d="M16 36v.1M25 38v.1M34 36v.1M20 43v.1M30 43v.1"></path>
+    </symbol>
+    <symbol id="i-mist" viewBox="0 0 48 48" fill="none" stroke="#C9CFDC" stroke-width="3" stroke-linecap="round">
+      <path d="M8 15h32M12 23h30M8 31h32M14 39h26"></path>
+    </symbol>
+  </defs>
+</svg>
+<script src="app/src/main/assets/script.js"></script>
+<script>
+// ═══════════ أدوات المعاينة فقط (preview.html) — لا تدخل التطبيق ═══════════
+// تحاكي ما يدفعه Kotlin للصفحة: الطقس، المباريات، أوقات الصلاة، رمضان، وصور الخلفية.
+(function () {
+  var TZ = 3 * 3600 * 1000;
+  var params = new URLSearchParams(location.search);
+  function q(name, def) { return params.has(name) ? params.get(name) : def; }
+
+  // ── إعدادات المدينة والفريق (في التطبيق تأتي من ApiConfig.kt؛ هنا تجرّبها من لوحة الخيارات) ──
+  var cfgCity = q('city', CITY_NAME), cfgTeam = q('team', TEAM_NAME), cfgTz = q('tz', TZ_NAME);
+  setConfig({ city: cfgCity, team: cfgTeam, tz: cfgTz, offsetMs: 3 * 3600 * 1000 });
+
+  // ── محاكاة الوقت: نستبدل nowMs() الموجودة في script.js ──
+  var simOffset = 0;
+  nowMs = function () { return Date.now() + simOffset; };
+
+  function riyadhToday(h, m, s) {
+    var dn = Math.floor((Date.now() + TZ) / 86400000);
+    return dn * 86400000 - TZ + ((h * 60 + m) * 60 + (s || 0)) * 1000;
+  }
+  function riyadhDate(y, mo, d, h, mi) { return Date.UTC(y, mo, d, h, mi) - TZ; }
+
+  var TIME_SCENARIOS = {
+    morning: [10, 23, 0],   // مثل لقطة التصميم الحالي: ١٠:٢٣ ص
+    night: [22, 31, 0],     // بعد العشاء → الصلاة القادمة فجر بكرة
+    predawn: [3, 40, 0],    // قبل الفجر
+    soon: [12, 6, 20],      // قبل أذان الظهر بدقيقة
+    afternoon: [15, 5, 0]
+  };
+  var timeKey = q('t', 'real');
+  if (TIME_SCENARIOS[timeKey]) {
+    var sc = TIME_SCENARIOS[timeKey];
+    simOffset = riyadhToday(sc[0], sc[1], sc[2]) - Date.now();
+  }
+  var simNow = nowMs();
+  var simHour = cityParts(simNow).h;
+  var isNight = simHour >= 18 || simHour < 6;
+
+  // ── أوقات المدينة المنورة (طريقة أم القرى) ليوم 19 أكتوبر 2026 كما رجعت من AlAdhan ──
+  var TIMES = { fajr: [5, 3], dhuhr: [12, 7], asr: [15, 25], maghrib: [17, 52], isha: [19, 22] };
+  function prayerEvents(now) {
+    var dn = Math.floor((now + TZ) / 86400000), ev = [];
+    for (var off = 0; off <= 1; off++) {
+      for (var k in TIMES) ev.push({ key: k, ts: (dn + off) * 86400000 - TZ + (TIMES[k][0] * 60 + TIMES[k][1]) * 60000 });
+    }
+    return ev;
+  }
+
+  // ── المحتوى التجريبي ──
+  var dataKey = q('data', 'normal');
+
+  if (dataKey !== 'loading') {
+    if (dataKey !== 'noprayer') updatePrayers({ events: prayerEvents(simNow) });
+    else updatePrayers({ events: [] });
+    updateRamadan({ target: riyadhDate(2027, 1, 8, 0, 0) });
+
+    var wd = cityParts(simNow).wd;
+    var temps = [[22, 36, '01d'], [25, 38, '01d'], [23, 38, '03d'], [23, 38, '02d'], [23, 38, '04d']];
+    var daily = [];
+    for (var i = 0; i < 5; i++) daily.push({ day: WEEKDAYS[(wd + i) % 7], min: temps[i][0], max: temps[i][1], icon: temps[i][2] });
+    updateWeather({ temp: isNight ? 27 : 32, description: isNight ? 'سماء صافية' : 'سماء صافية', icon: isNight ? '01n' : '01d', daily: daily });
+
+    var normal = [
+      { opponent: 'Tottenham Hotspur FC', isHome: true, competition: 'Premier League', ts: riyadhDate(2026, 9, 24, 19, 30) },
+      { opponent: 'Manchester United FC', isHome: true, competition: 'Premier League', ts: riyadhDate(2026, 9, 31, 15, 30) },
+      { opponent: 'Sunderland AFC', isHome: false, competition: 'Premier League', ts: riyadhDate(2026, 10, 8, 17, 0) },
+      { opponent: 'Leeds United FC', isHome: true, competition: 'Premier League', ts: riyadhDate(2026, 10, 21, 18, 0) },
+      { opponent: 'Nottingham Forest FC', isHome: false, competition: 'Premier League', ts: riyadhDate(2026, 10, 27, 23, 0) }
+    ];
+    var tomorrow9pm = riyadhToday(21, 0, 0) + 86400000;
+    var longNames = [
+      { opponent: 'Paris Saint-Germain FC', isHome: false, competition: 'UEFA Champions League', ts: tomorrow9pm },
+      { opponent: 'Borussia Mönchengladbach', isHome: true, competition: 'UEFA Champions League', ts: riyadhDate(2026, 9, 28, 22, 0) },
+      { opponent: 'Wolverhampton Wanderers FC', isHome: true, competition: 'EFL Cup', ts: riyadhDate(2026, 10, 3, 22, 45) },
+      { opponent: 'Some Unknown FC', isHome: false, competition: 'Some Other Cup', ts: riyadhDate(2026, 10, 9, 20, 0) },
+      { opponent: 'Newcastle United FC', isHome: true, competition: 'FA Cup', ts: riyadhDate(2026, 10, 14, 19, 30) }
+    ];
+    if (dataKey === 'nomatches') updateMatches([]);
+    else if (dataKey === 'longnames') updateMatches(longNames);
+    else updateMatches(normal);
+  }
+
+  // ── خلفيات تجريبية مرسومة بالكود (ليست صورًا حقيقية) لاختبار وضوح النص ──
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function demo(kind) {
+    var W = 1600, H = 900, c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    var g = c.getContext('2d'), r = rng(kind.length * 977 + 13), i, x, y;
+    var horizon = H * 0.4;
+    var sky = g.createLinearGradient(0, 0, 0, horizon);
+    var sea = g.createLinearGradient(0, horizon, 0, H);
+    if (kind === 'sea') {            // ذهبي دافئ مثل المرجع
+      sky.addColorStop(0, '#a9854f'); sky.addColorStop(1, '#d7b57c');
+      sea.addColorStop(0, '#8a7650'); sea.addColorStop(0.45, '#3a3a38'); sea.addColorStop(1, '#17191f');
+    } else if (kind === 'dusk') {    // أزرق ليلي
+      sky.addColorStop(0, '#0f2a5c'); sky.addColorStop(1, '#6f8fc4');
+      sea.addColorStop(0, '#3d5d92'); sea.addColorStop(0.5, '#142544'); sea.addColorStop(1, '#0a1226');
+    } else {                         // فاتح جدًا: أصعب اختبار لوضوح النص
+      sky.addColorStop(0, '#e9eef7'); sky.addColorStop(1, '#fff4dc');
+      sea.addColorStop(0, '#cdd9e6'); sea.addColorStop(0.5, '#9fb2c6'); sea.addColorStop(1, '#6d8199');
+    }
+    g.fillStyle = sky; g.fillRect(0, 0, W, horizon);
+    g.fillStyle = sea; g.fillRect(0, horizon, W, H - horizon);
+    for (i = 0; i < 1400; i++) {     // حبيبات أمواج
+      x = r() * W; y = horizon + r() * (H - horizon);
+      g.fillStyle = r() > 0.5 ? 'rgba(255,255,255,' + (0.03 + r() * 0.07) + ')' : 'rgba(0,0,0,' + (0.04 + r() * 0.1) + ')';
+      g.fillRect(x, y, 20 + r() * 90, 2 + r() * 3);
+    }
+    if (kind === 'sea') {
+      g.fillStyle = '#1b1712';       // صخرة
+      g.beginPath(); g.moveTo(W * 0.27, H * 0.74); g.lineTo(W * 0.31, H * 0.55); g.lineTo(W * 0.37, H * 0.5);
+      g.lineTo(W * 0.43, H * 0.53); g.lineTo(W * 0.49, H * 0.6); g.lineTo(W * 0.55, H * 0.74); g.closePath(); g.fill();
+      for (i = 0; i < 40; i++) {     // رذاذ أبيض
+        x = W * (0.55 + r() * 0.4); y = H * (0.2 + r() * 0.4);
+        var rg = g.createRadialGradient(x, y, 0, x, y, 40 + r() * 110);
+        rg.addColorStop(0, 'rgba(235,240,250,0.32)'); rg.addColorStop(1, 'rgba(235,240,250,0)');
+        g.fillStyle = rg; g.fillRect(x - 160, y - 160, 320, 320);
+      }
+      g.strokeStyle = '#111'; g.lineWidth = 3;
+      for (i = 0; i < 5; i++) { x = W * (0.08 + r() * 0.6); y = H * (0.28 + r() * 0.1); g.beginPath(); g.moveTo(x - 14, y - 4); g.quadraticCurveTo(x - 6, y - 10, x, y); g.quadraticCurveTo(x + 6, y - 10, x + 14, y - 4); g.stroke(); }
+    }
+    return c.toDataURL('image/jpeg', 0.86);
+  }
+
+  var bgKey = q('bg', 'sea');
+  if (params.has('fast')) BG_INTERVAL_MS = 6000;
+  if (bgKey === 'sea') setBackgrounds([demo('sea')]);
+  else if (bgKey === 'dusk') setBackgrounds([demo('dusk')]);
+  else if (bgKey === 'bright') setBackgrounds([demo('bright')]);
+  else if (bgKey === 'all') setBackgrounds([demo('sea'), demo('dusk'), demo('bright')]);
+  else setBackgrounds([]);
+
+  tick();
+
+  // ── لوحة الخيارات (تختفي مع ?clean أو بزر H) ──
+  if (params.has('clean')) return;
+  var css = document.createElement('style');
+  css.textContent =
+    '#pv{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:99999;font:13px/1.5 system-ui,Segoe UI,Tahoma,sans-serif;direction:rtl;color:#fff}' +
+    '#pv .pill{display:block;margin:0 auto;background:rgba(10,14,28,.82);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:999px;padding:5px 16px;cursor:pointer;font:inherit}' +
+    '#pv .box{display:none;margin-top:8px;background:rgba(10,14,28,.94);border:1px solid rgba(255,255,255,.22);border-radius:14px;padding:12px 14px;min-width:330px}' +
+    '#pv.open .box{display:block}' +
+    '#pv .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:7px 0}' +
+    '#pv select,#pv input[type=text],#pv .btn{background:#1b2547;color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:8px;padding:4px 8px;font:inherit;max-width:215px}' +
+    '#pv .btn{cursor:pointer}#pv small{display:block;color:rgba(255,255,255,.55);margin-top:8px}';
+  document.head.appendChild(css);
+
+  function opt(list, cur) {
+    return list.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === cur ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('');
+  }
+  var pv = document.createElement('div');
+  pv.id = 'pv';
+  pv.innerHTML =
+    '<button class="pill" id="pv-toggle">⚙ خيارات المعاينة</button><div class="box">' +
+    '<div class="row"><span>الوقت</span><select id="pv-t">' + opt([
+      ['real', 'الوقت الحقيقي'], ['morning', '١٠:٢٣ ص'], ['night', '١٠:٣١ م — بعد العشاء (فجر بكرة)'],
+      ['predawn', '٣:٤٠ ص — قبل الفجر'], ['soon', '١٢:٠٦ م — قبل الظهر بدقيقة'], ['afternoon', '٣:٠٥ م']], timeKey) + '</select></div>' +
+    '<div class="row"><span>الخلفية</span><select id="pv-bg">' + opt([
+      ['none', 'بدون صور (navy)'], ['sea', 'صورة تجريبية: بحر'], ['dusk', 'صورة تجريبية: أزرق'],
+      ['bright', 'صورة فاتحة جدًا (اختبار الوضوح)'], ['all', 'ثلاث صور (تبديل سريع)']], bgKey) + '</select></div>' +
+    '<div class="row"><span>البيانات</span><select id="pv-data">' + opt([
+      ['normal', 'عادية'], ['longnames', 'مباراة بكرة + أسماء طويلة'], ['nomatches', 'بدون مباريات'],
+      ['noprayer', 'بدون أوقات صلاة'], ['loading', 'قبل وصول أي بيانات']], dataKey) + '</select></div>' +
+    '<div class="row"><span>اسم المدينة</span><input id="pv-city" type="text" value="' + esc(cfgCity) + '"></div>' +
+    '<div class="row"><span>اسم الفريق</span><input id="pv-team" type="text" value="' + esc(cfgTeam) + '"></div>' +
+    '<div class="row"><span>المنطقة الزمنية</span><select id="pv-tz">' + opt([
+      ['Asia/Riyadh', 'الرياض (UTC+3)'], ['Asia/Dubai', 'دبي (UTC+4)'], ['Africa/Cairo', 'القاهرة (توقيت صيفي)'],
+      ['Europe/London', 'لندن (توقيت صيفي)'], ['America/New_York', 'نيويورك (توقيت صيفي)']], cfgTz) + '</select></div>' +
+    '<div class="row"><span>صورك أنت</span><label class="btn">اختر صورة أو أكثر…<input id="pv-files" type="file" accept="image/*" multiple hidden></label></div>' +
+    '<small>تبديل الخلفية في التطبيق كل ٥ دقائق؛ هنا يصير كل ٦ ثوانٍ عند اختيار «ثلاث صور» أو صورك.<br>زر H يخفي هذه اللوحة.</small></div>';
+  document.body.appendChild(pv);
+
+  $('pv-toggle').onclick = function () { pv.classList.toggle('open'); };
+  function reload() {
+    var u = new URLSearchParams();
+    u.set('t', $('pv-t').value); u.set('bg', $('pv-bg').value); u.set('data', $('pv-data').value);
+    u.set('city', $('pv-city').value); u.set('team', $('pv-team').value); u.set('tz', $('pv-tz').value);
+    if ($('pv-bg').value === 'all') u.set('fast', '1');
+    location.search = u.toString();
+  }
+  $('pv-t').onchange = $('pv-bg').onchange = $('pv-data').onchange = $('pv-tz').onchange = reload;
+  $('pv-city').onchange = $('pv-team').onchange = reload;
+  $('pv-files').onchange = function () {
+    var urls = [];
+    for (var i = 0; i < this.files.length; i++) urls.push(URL.createObjectURL(this.files[i]));
+    if (!urls.length) return;
+    BG_INTERVAL_MS = 6000;
+    bgSig = ''; // يسمح بإعادة تعيين القائمة
+    setBackgrounds(urls);
+  };
+  document.addEventListener('keydown', function (e) { if (e.key === 'h' || e.key === 'H') pv.style.display = pv.style.display === 'none' ? '' : 'none'; });
+})();
+
+</script>
+</body>
+</html>

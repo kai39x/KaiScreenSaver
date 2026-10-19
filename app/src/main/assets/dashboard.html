@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>KaiScreenSaver</title>
+<!-- خط Thmanyah Sans محلي بالكامل (assets/fonts) — لا حاجة لأي خط من الإنترنت -->
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="stage" id="stage">
+
+  <!-- الخلفية: طبقتان تتبادلان بتلاشي ناعم؛ بدون صور في assets/backgrounds تظهر خلفية navy متدرجة -->
+  <div class="bg-layer" id="bg-a" aria-hidden="true"></div>
+  <div class="bg-layer" id="bg-b" aria-hidden="true"></div>
+  <div class="shade" aria-hidden="true"></div>
+
+  <div class="drift">
+
+    <!-- يسار فوق: الطقس -->
+    <!-- اسم المدينة يأتي من ApiConfig.kt (CITY_NAME) عبر setConfig() في script.js -->
+    <section class="weather" id="weather-box" aria-label="الطقس">
+      <div class="label" id="weather-label">الطقس</div>
+      <div class="weather-now">
+        <span class="weather-temp" id="weather-temp">--°</span>
+        <svg class="wicon wicon-now" viewBox="0 0 48 48" aria-hidden="true"><use id="weather-icon" href="#i-cloud"></use></svg>
+        <span class="weather-desc" id="weather-desc">جاري التحميل…</span>
+      </div>
+      <div class="forecast" id="weather-forecast"></div>
+    </section>
+
+    <!-- يمين فوق: اسم اليوم والتاريخان -->
+    <header class="when">
+      <div class="weekday" id="weekday">—</div>
+      <div class="dates" id="date-label">—</div>
+    </header>
+
+    <!-- الساعة الضخمة: الأرقام (ساعات : دقائق) ثم ص/م صغيرة على يسارها -->
+    <div class="clock" aria-label="الوقت">
+      <span class="time"><span id="clock-h">--</span><span class="colon">:</span><span id="clock-m">--</span></span>
+      <span class="period" id="clock-period">--</span>
+    </div>
+
+    <!-- صف الأعمدة الثلاثة: صلاة | رمضان | مباراة — بدون كروت، فواصل رفيعة فقط -->
+    <footer class="info">
+
+      <section class="col" aria-label="الصلاة القادمة">
+        <div class="label">الصلاة القادمة</div>
+        <div class="value"><span id="prayer-name">—</span><span class="small" id="prayer-time"></span></div>
+        <div class="sub" id="prayer-sub">جاري التحميل…</div>
+      </section>
+
+      <section class="col" aria-label="عداد رمضان">
+        <div class="label">رمضان</div>
+        <div class="value"><span id="ramadan-value">—</span><span class="small" id="ramadan-unit"></span></div>
+        <div class="sub" id="ramadan-sub">جاري التحميل…</div>
+      </section>
+
+      <!-- اسم الفريق يأتي من ApiConfig.kt (TEAM_NAME) عبر setConfig() في script.js -->
+      <section class="col col-match" id="match-box" aria-label="المباريات القادمة">
+        <div class="label"><span id="match-label">المباراة القادمة</span><span class="dots" id="match-dots"></span></div>
+        <div class="swap" id="match-swap">
+          <div class="value" id="match-title">—</div>
+          <div class="sub" id="match-sub">جاري تحميل المباريات…</div>
+        </div>
+      </section>
+
+    </footer>
+  </div>
+</div>
+
+<!-- أيقونات الطقس: SVG مضمّنة (تعمل بلا إنترنت وبدون صور خارجية) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-clear-d" viewBox="0 0 48 48" fill="none" stroke="#F6C85F" stroke-width="3" stroke-linecap="round">
+      <circle cx="24" cy="24" r="8.5"></circle>
+      <path d="M24 5v5M24 38v5M5 24h5M38 24h5M10.6 10.6l3.5 3.5M33.9 33.9l3.5 3.5M10.6 37.4l3.5-3.5M33.9 14.1l3.5-3.5"></path>
+    </symbol>
+    <symbol id="i-clear-n" viewBox="0 0 48 48" fill="none" stroke="#DCE4F7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M36 28.5A14 14 0 0 1 19.5 12a14 14 0 1 0 16.5 16.5z"></path>
+    </symbol>
+    <symbol id="i-few-d" viewBox="0 0 48 48" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <g stroke="#F6C85F"><circle cx="31" cy="17" r="6.5"></circle><path d="M31 5v3M31 26v3M19 17h3M40 17h3M22.5 8.5l2 2M37.5 23.5l2 2M39.5 8.5l-2 2"></path></g>
+      <path stroke="#fff" d="M15 40h17a6.5 6.5 0 0 0 .6-13A9 9 0 0 0 15.4 28 6 6 0 0 0 15 40z"></path>
+    </symbol>
+    <symbol id="i-few-n" viewBox="0 0 48 48" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="#DCE4F7" d="M41 20.5A9.5 9.5 0 0 1 30.5 8 9.5 9.5 0 1 0 41 20.5z"></path>
+      <path stroke="#fff" d="M15 41h17a6.5 6.5 0 0 0 .6-13A9 9 0 0 0 15.4 29 6 6 0 0 0 15 41z"></path>
+    </symbol>
+    <symbol id="i-cloud" viewBox="0 0 48 48" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M13 37h21a8 8 0 0 0 .8-16A11 11 0 0 0 13.4 23 7 7 0 0 0 13 37z"></path>
+    </symbol>
+    <symbol id="i-rain" viewBox="0 0 48 48" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="#fff" d="M13 29h21a8 8 0 0 0 .8-16A11 11 0 0 0 13.4 15 7 7 0 0 0 13 29z"></path>
+      <path stroke="#7FB2FF" d="M17 35l-2 6M26 35l-2 6M35 35l-2 6"></path>
+    </symbol>
+    <symbol id="i-thunder" viewBox="0 0 48 48" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="#fff" d="M13 29h21a8 8 0 0 0 .8-16A11 11 0 0 0 13.4 15 7 7 0 0 0 13 29z"></path>
+      <path stroke="#F6C85F" d="M25 31l-5 8h6l-3 7"></path>
+    </symbol>
+    <symbol id="i-snow" viewBox="0 0 48 48" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="#fff" d="M13 29h21a8 8 0 0 0 .8-16A11 11 0 0 0 13.4 15 7 7 0 0 0 13 29z"></path>
+      <path stroke="#BFD9FF" d="M16 36v.1M25 38v.1M34 36v.1M20 43v.1M30 43v.1"></path>
+    </symbol>
+    <symbol id="i-mist" viewBox="0 0 48 48" fill="none" stroke="#C9CFDC" stroke-width="3" stroke-linecap="round">
+      <path d="M8 15h32M12 23h30M8 31h32M14 39h26"></path>
+    </symbol>
+  </defs>
+</svg>
+
+<script src="script.js"></script>
+</body>
+</html>

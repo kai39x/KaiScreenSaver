@@ -1,0 +1,5 @@
+# انسخ هذين السطرين إلى ملف local.properties في جذر المشروع (بجانب سطر sdk.dir الذي يضيفه Android Studio تلقائيًا)
+# local.properties لا يُرفع إلى Git أبدًا لأنه يحتوي مفاتيحك الخاصة.
+
+OPENWEATHER_API_KEY=ضع_مفتاح_OpenWeatherMap_هنا
+FOOTBALL_DATA_API_KEY=ضع_مفتاح_football-data.org_هنا
