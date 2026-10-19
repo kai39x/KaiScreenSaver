@@ -254,14 +254,6 @@ const val TEAM_NAME: String = "تشيلسي"             // الاسم الظا�
 3. **طريقة الحساب:** رقمها في AlAdhan. شائع: `4` أم القرى · `3` رابطة العالم الإسلامي · `5` الهيئة المصرية العامة · `2` أمريكا الشمالية (ISNA) · `1` كراتشي.
    القائمة الكاملة: <https://aladhan.com/prayer-times-api>
 
-مثال لدبي:
-
-```kotlin
-const val CITY_NAME: String = "دبي"
-const val CITY_LAT: Double = 25.2048
-const val CITY_LON: Double = 55.2708
-const val TIMEZONE: String = "Asia/Dubai"
-```
 
 الطقس بالعربية والحرارة بالمئوية، ويعمل لأي مدينة يدعمها OpenWeatherMap بالإحداثيات.
 
